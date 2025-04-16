@@ -28,6 +28,8 @@ class Server {
 private:
     int port;                           // Sunucunun çalıştığı port
     int server_socket;                 // Sunucu soket dosya tanımlayıcısı (FD)
+    std::string password;              // Sunucu şifresi
+    std::set<int> authorizedClients;    // Yetkilendirilmiş istemcilerin FD'leri
     struct sockaddr_in server_addr;     // Sunucu adres yapısı
     std::vector<struct pollfd> clients; // Bağlı istemcileri takip eden liste
     std::map<int, std::string> nicknames; // Kullanıcıların takma adları (socket_fd -> nickname)
@@ -39,9 +41,10 @@ private:
     std::map<std::string, int> channelLimits;         // `+l` modundaki kullanıcı limiti
     std::map<std::string, std::set<int> > channelOperators; // Kanal operatörlerini saklayan harita (kanal adı -> kullanıcılar)
     std::map<std::string, int> channelFounders;  // Kanal adını founder ile eşleştirir
+    std::map<std::string, std::string> channelTopics; // Kanal başlıklarını saklar (kanal adı -> başlık)
 
 public:
-    Server(int port);  // Yapıcı fonksiyon
+    Server(int port, const std::string& password); // Yapıcı fonksiyon
     ~Server();         // Yıkıcı fonksiyon
     
     void init();          // Sunucu başlatma işlemi
@@ -56,6 +59,9 @@ public:
 
     void updateChannelMode(const std::string& channel, char mode, bool enable); // Kanal modlarını günceller
 
+    bool isAuthorized(int fd) const;
+    void authorizeClient(int fd);
+    const std::string& getPassword() const;
     std::map<std::string, std::string>& getChannelModes(); // Kanal modlarını döndürür
     // Getter fonksiyonları (Commands.cpp erişimi için)
     std::map<int, std::string>& getNicknames();
@@ -70,7 +76,7 @@ public:
     void createChannel(const std::string& channelName, int client_fd);
     std::map<std::string, int>& getChannelFounders();
     int getUserFdByNick(const std::string& nickname); // Kullanıcıyı takma adıyla bulur
-    
+    std::map<std::string, std::string>& getChannelTopics(); // Kanal başlıklarını döndürür
 };
 
 #endif

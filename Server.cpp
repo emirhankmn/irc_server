@@ -15,13 +15,26 @@
 #include <sstream>      // String işleme için
 
 // Sunucu yapıcı fonksiyonu
-Server::Server(int port) : port(port), server_socket(-1) {}
+Server::Server(int port, const std::string& password): port(port), server_socket(-1), password(password) {}
 
 // Sunucu yıkıcı fonksiyonu
 Server::~Server() {
     if (server_socket != -1) {
         close(server_socket); // Sunucu kapanırken soketi serbest bırak
     }
+}
+
+// Yetkilendirilmiş istemcileri kontrol etme fonksiyonu
+bool Server::isAuthorized(int fd) const {
+    return authorizedClients.find(fd) != authorizedClients.end();
+}
+/// Yetkilendirilmiş istemci listesini güncelleme fonksiyonu
+void Server::authorizeClient(int fd) {
+    authorizedClients.insert(fd);
+}
+/// Yetkilendirilmiş istemci listesinden istemciyi kaldırma fonksiyonu
+const std::string& Server::getPassword() const {
+    return password;
 }
 
 // Sunucuyu başlatan fonksiyon
@@ -174,39 +187,30 @@ void Server::updateChannelMode(const std::string& channel, char mode, bool enabl
 std::vector<struct pollfd>& Server::getClients() {return clients;}
 std::map<int, std::string>& Server::getNicknames() {return nicknames;}
 std::map<std::string, std::set<int> >& Server::getChannels() {return channels;}
-std::map<std::string, int>& Server::getChannelLimits() { 
-    return channelLimits; 
-}
-
-std::map<std::string, std::string>& Server::getChannelKeys() { 
-    return channelKeys; 
-}
-
-std::set<std::string>& Server::getInviteOnlyChannels() { 
-    return inviteOnlyChannels; 
-}
-
-std::map<std::string, std::set<int> >& Server::getInvitedUsers() { 
-    return invitedUsers; 
-}
+std::map<std::string, int>& Server::getChannelLimits() {return channelLimits;}
+std::map<std::string, std::string>& Server::getChannelKeys() {return channelKeys; }
+std::set<std::string>& Server::getInviteOnlyChannels() {return inviteOnlyChannels;}
+std::map<std::string, std::set<int> >& Server::getInvitedUsers() {return invitedUsers;}
 std::map<std::string, std::string>& Server::getChannelModes() {return channelModes;}
-std::map<std::string, std::set<int> >& Server::getChannelOperators() {
-    return channelOperators;
-}
+std::map<std::string, std::set<int> >& Server::getChannelOperators() {return channelOperators;}
 void Server::createChannel(const std::string& channelName, int client_fd) {
     channels[channelName].insert(client_fd);
     channelFounders[channelName] = client_fd;
 }
 
-std::map<std::string, int>& Server::getChannelFounders() {
-    return channelFounders;
-}
+std::map<std::string, int>& Server::getChannelFounders() {return channelFounders;}
 
 int Server::getUserFdByNick(const std::string& nickname) {
-    for (std::vector<struct pollfd>::iterator it = clients.begin(); it != clients.end(); ++it) {
-        if (nicknames[it->fd] == nickname) {
-            return it->fd; // Kullanıcı bulundu, FD'yi döndür
+    for (size_t i = 0; i < clients.size(); ++i) {
+        int fd = clients[i].fd;
+        if (nicknames.find(fd) != nicknames.end()) {
+            if (strcasecmp(nicknames[fd].c_str(), nickname.c_str()) == 0)
+                return fd;
         }
     }
-    return -1; // Kullanıcı bulunamadıysa -1 döndür
+    return -1;
+}
+
+std::map<std::string, std::string>& Server::getChannelTopics() {
+    return channelTopics;
 }
