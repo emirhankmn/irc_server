@@ -10,7 +10,9 @@ Amaç: Basit bir IRC sunucusu yazmak, client'lardan gelen komutlara yanıt verme
 
 ## 2. Socket Nedir?
 
-**Socket**, bir bilgisayar üzerinde veya bilgisayarlar arasında iletişim kurmak için kullanılan bir endpoint'tir. Socket yapısı, işletim sisteminin sunduğu bir API üzerinden iki uç arasında veri alışverişi yapılmasını sağlar. 
+**Socket**, bir bilgisayar üzerinde veya bilgisayarlar arasında iletişim kurmak için kullanılan bir endpoint'tir. Socket yapısı, işletim sisteminin sunduğu bir API üzerinden iki uç arasında veri alışverişi yapılmasını sağlar.
+
+Nerelerde kullanilir: 
 
 Bu projede **TCP (Transmission Control Protocol)** soketleri kullanılmıştır. TCP, bağlantı tabanlıdır ve veri iletiminde sıralama ve güvenilirlik sağlar. Alternatif olarak UDP (User Datagram Protocol) kullanılabilirdi, fakat IRC gibi mesaj bazlı, oturum içeren sistemlerde aşağıdaki karşılaştırmadan da görüleceği üzere TCP daha uygun bir tercihtir:
 
@@ -19,7 +21,7 @@ Bu projede **TCP (Transmission Control Protocol)** soketleri kullanılmıştır.
 | Bağlantı       | Bağlantılı (connection-based) | Bağlantısız              |
 | Güvenilirlik   | Veri kaybı yaşanmaz           | Paketler kaybolabilir     |
 | Sıralama       | Garantili                     | Yok                       |
-| Performans     | Daha yavaş (güvenlik sebebiyle)| Daha hızlı                |
+| Performans     | Daha yavaş (güvenlik sebebiyle) | Daha hızlı                |
 
 IRC protokolü kullanıcı oturumu ve mesaj güvenliği gerektirdiğinden, **TCP** tercih edilmiştir.
 
@@ -171,7 +173,7 @@ Bu sayede istemcilerin kimlikleri ve katıldıkları kanallar kolayca izlenebili
 | +k   | Kanal şifresi                            | Evet (`şifre`)         |
 | +l   | Maksimum kullanıcı limiti                | Evet (`sayaç`)          |
 | +o   | Kanal operatörlüğü                       | Evet (`nickname`)      |
-| +t   | Sadece operatörlerin topic değiştirmesi | Hayır                 |
+| +t   | Sadece operatörlerin topic değiştirmesi  | Hayır                 |
 
 Her mod için `Modes/` klasöründe bir fonksiyon bulunur:
 

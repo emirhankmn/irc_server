@@ -31,6 +31,7 @@ void passCommand(Server& server, int client_fd, std::istringstream& iss) {
         return;
     }
 
+    std::string success_msg = ":ft_irc 001 :Welcome to the FT_IRC\r\n";
     server.authorizeClient(client_fd);
 }
 
