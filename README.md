@@ -77,6 +77,81 @@ PRIVMSG #kanal :Selam millet
 3. Şifre (password) alanına `4242` girilir.
 4. HexChat istemcisine komutlar terminal gibi girilir: `/join`, `/privmsg`, `/kick`, vb.
 
+#### 📡 HexChat Üzerinden Bağlantı ve Girdi Kuralları
+
+IRC istemcileri arasında en yaygın grafik arayüze sahip olan **HexChat**, komutları ve mesajları özel bir biçimde işler. Bu nedenle HexChat ile test yaparken şu kurallar göz önünde bulundurulmalıdır:
+
+##### 1. Komutlar `:` karakteri olmadan yazılmalıdır
+
+HexChat’te kullanıcılar komutları terminal ekranındaki komut satırına `/` ile başlatarak yazar. Örneğin:
+
+```irc
+/join #kanal
+/part #kanal
+/msg #kanal Merhaba!
+```
+
+IRC protokolünde ise bu komutlar genellikle istemci tarafından şu şekilde sunucuya iletilir:
+
+```
+JOIN #kanal\r\n
+PART #kanal\r\n
+PRIVMSG #kanal :Merhaba!\r\n
+```
+
+Yani HexChat kendisi `:` ekler. Bu yüzden `PRIVMSG` gibi komutlarda sunucuda `:` işareti beklenmeli, ama kullanıcıdan manuel olarak istenmemelidir.
+
+##### 2. Komut ile parametre arasında sadece bir boşluk olur
+
+HexChat `/mode`, `/kick`, `/invite` gibi komutlarda parametreleri otomatik ayrıştırır. Örneğin:
+
+```irc
+/mode #kanal +o Emirhan
+```
+
+Bu HexChat tarafından şu şekilde sunucuya gönderilir:
+
+```
+MODE #kanal +o Emirhan\r\n
+```
+
+##### 3. Şifreli giriş `/pass` kullanılarak yapılabilir
+
+HexChat’te “password” alanına şifre yazıldığında bağlantı sonrası istemci şu komutu otomatik gönderir:
+
+```
+PASS <şifre>\r\n
+```
+
+Veya elle terminalden:
+
+```irc
+/pass 4242
+```
+
+##### 4. JOIN komutları bazen kanala girmeden önce `WHO` gönderir
+
+HexChat bazen `JOIN` sonrası otomatik olarak `WHO` gönderir. `WHO` için kanal daha oluşmadan çağrı gelirse, bu hata değildir.
+
+##### 5. `TOPIC` ve `MODE` davranışları
+
+HexChat GUI’si üzerinden kanal başlığı değiştirildiğinde sunucuya şu komut gider:
+
+```
+TOPIC #kanal :Yeni başlık\r\n
+```
+
+#### ✅ Özet: HexChat İstemci Davranışı
+
+| HexChat Aksiyonu          | Gönderilen Ham Komut                    | Sunucuda Beklenen |
+|---------------------------|-----------------------------------------|-------------------|
+| `/join #kanal`            | `JOIN #kanal`                           | `JOIN` fonksiyonu |
+| `/msg #kanal selam`       | `PRIVMSG #kanal :selam`                | `PRIVMSG`         |
+| GUI'den topic değişimi    | `TOPIC #kanal :yeni başlık`            | `TOPIC`           |
+| GUI'den kick              | `KICK #kanal kullanıcı :neden`         | `KICK`            |
+| Şifreli giriş             | `PASS 4242`                             | `PASS`            |
+
+
 ### 3.1 Sunucu Çalışma Mantığı
 
 1. **Sunucu socket'i oluşturulur.**
