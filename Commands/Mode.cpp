@@ -67,9 +67,7 @@ void modeCommand(Server& server, int client_fd, std::istringstream& iss) {
     std::string word;
     while (iss >> word)
         parameters.push_back(word);
-    
     Modes::processMode(server, client_fd, channel, modeStr, parameters);
 
-}
-
+    }
 }

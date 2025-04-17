@@ -316,5 +316,5 @@ Bu proje sayesinde:
 
 Bu doküman, projeyi anlamak, bakım yapmak ya da devralmak isteyen herkes için başvuru kaynağı olarak yazılmıştır.
 
-Hazırlayan: IRC Komutanı 👑
+Hazırlayanlar: Melis Portakal, Emirhan Akman 
 
