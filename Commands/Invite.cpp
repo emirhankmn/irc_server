@@ -19,6 +19,12 @@ void inviteCommand(Server& server, int client_fd, std::istringstream& iss) {
     std::string targetNick, channel;
     iss >> targetNick >> channel;
 
+    if (!server.isAuthorized(client_fd)) {
+        std::string msg = ":ft_irc 451 : If you register, you are blessed.\r\n";
+        send(client_fd, msg.c_str(), msg.size(), 0);
+        return;
+    }
+
     if (targetNick.empty() || channel.empty()) {
         std::string error_msg = ":ft_irc 461 INVITE :Not enough parameters\r\n";
         send(client_fd, error_msg.c_str(), error_msg.size(), 0);
@@ -73,6 +79,6 @@ void inviteCommand(Server& server, int client_fd, std::istringstream& iss) {
     // ✅ Gönderene de onay mesajı
     std::string confirm = ":ft_irc 341 " + targetNick + " " + channel + "\r\n";
     send(client_fd, confirm.c_str(), confirm.size(), 0);
-}
+    }
 
 }

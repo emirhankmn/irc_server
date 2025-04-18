@@ -21,6 +21,12 @@ void userCommand(Server& server, int client_fd, std::istringstream& iss) {
     std::getline(iss, realname);
 
     if (!server.isAuthorized(client_fd)) {
+        std::string msg = ":ft_irc 462 :You not register\r\n";
+        send(client_fd, msg.c_str(), msg.size(), 0);
+        return;
+    }
+
+    if (!server.isAuthorized(client_fd)) {
         std::string msg = ":ft_irc 451 :You have not registered\r\n";
         send(client_fd, msg.c_str(), msg.size(), 0);
         return;

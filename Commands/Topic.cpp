@@ -19,6 +19,12 @@ void topicCommand(Server& server, int client_fd, std::istringstream& iss) {
     std::string channel;
     iss >> channel;
 
+    if (!server.isAuthorized(client_fd)) {
+        std::string msg = ":ft_irc 462 :You not register\r\n";
+        send(client_fd, msg.c_str(), msg.size(), 0);
+        return;
+    }
+
     if (channel.empty() || channel[0] != '#') {
         std::string error_msg = ":ft_irc 461 TOPIC :Not enough parameters\r\n";
         send(client_fd, error_msg.c_str(), error_msg.size(), 0);

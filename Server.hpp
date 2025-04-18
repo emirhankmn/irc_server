@@ -94,4 +94,4 @@ public:
     void createChannel(const std::string& channelName, int client_fd);
 };
 
-#endif // SERVER_HPP
+#endif

@@ -108,7 +108,7 @@ void Server::acceptClient() {
         new_client.events = POLLIN;
         clients.push_back(new_client);
 
-        std::string welcome_msg = ":ft_irc 001 Welcome to ft_irc Server!\r\n";
+        std::string welcome_msg = ":ft_irc 001 NewUser :Welcome to ft_irc Server!\r\n";
         send(client_socket, welcome_msg.c_str(), welcome_msg.size(), 0);
     }
 }
@@ -155,7 +155,10 @@ void Server::sendToChannel(const std::string& channel, const std::string& sender
     for (std::set<int>::iterator it = channels[channel].begin(); it != channels[channel].end(); ++it) {
         if (*it != sender_fd) { // Mesajı gönderen istemciye tekrar göndermiyoruz
             send(*it, full_message.c_str(), full_message.size(), 0);
-            std::cout << "📨 Mesaj gönderildi: " << full_message << std::endl; // 🔹 Bu satırı ekle!
+            std::cout << "📨 Mesaj gönderildi: " << full_message << std::endl;
+        }
+        else {
+            std::cout << "📨 Mesaj gönderilmedi: " << full_message << std::endl;
         }
     }
 }

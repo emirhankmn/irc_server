@@ -85,7 +85,7 @@ IRC istemcileri arasında en yaygın grafik arayüze sahip olan **HexChat**, kom
 
 HexChat’te kullanıcılar komutları terminal ekranındaki komut satırına `/` ile başlatarak yazar. Örneğin:
 
-```irc
+```bash
 /join #kanal
 /part #kanal
 /msg #kanal Merhaba!
@@ -93,7 +93,7 @@ HexChat’te kullanıcılar komutları terminal ekranındaki komut satırına `/
 
 IRC protokolünde ise bu komutlar genellikle istemci tarafından şu şekilde sunucuya iletilir:
 
-```
+```bash
 JOIN #kanal\r\n
 PART #kanal\r\n
 PRIVMSG #kanal :Merhaba!\r\n

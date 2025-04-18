@@ -20,6 +20,12 @@ void modeCommand(Server& server, int client_fd, std::istringstream& iss) {
     std::string channel, modeStr, param;
     iss >> channel >> modeStr;
 
+    if (!server.isAuthorized(client_fd)) {
+        std::string msg = ":ft_irc 451 : If you register, you are blessed.\r\n";
+        send(client_fd, msg.c_str(), msg.size(), 0);
+        return;
+    }
+
     if (channel.empty() || channel[0] != '#') {
         std::string error_msg = ":ft_irc 403 " + channel + " :No such channel\r\n";
         send(client_fd, error_msg.c_str(), error_msg.size(), 0);

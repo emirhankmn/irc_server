@@ -18,6 +18,12 @@ namespace Commands {
 void quitCommand(Server& server, int client_fd, std::istringstream& iss) {
     std::string reason;
     std::getline(iss, reason);
+
+    if (!server.isAuthorized(client_fd)) {
+        std::string msg = ":ft_irc 462 :You not register\r\n";
+        send(client_fd, msg.c_str(), msg.size(), 0);
+        return;
+    }
     
     if (!reason.empty()) {
         reason = reason.substr(reason.find_first_not_of(" "));
