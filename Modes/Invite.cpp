@@ -24,6 +24,12 @@ void setInviteOnly(Server& server, int client_fd, const std::string& channel, bo
 
     std::string& currentModes = server.getChannelModes()[channel];
 
+    if (server.getChannelOperators()[channel].find(client_fd) == server.getChannelOperators()[channel].end()) {
+        std::string error_msg = ":ft_irc 482 " + channel + " :You're not channel operator\r\n";
+        send(client_fd, error_msg.c_str(), error_msg.size(), 0);
+        return;
+    }
+
     if (enable) {
         if (currentModes.find('i') == std::string::npos)
             currentModes += 'i';

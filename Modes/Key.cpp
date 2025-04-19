@@ -19,6 +19,12 @@ namespace Modes {
 void setKey(Server& server, int client_fd, const std::string& channel, const std::string& key) {
     std::cout << "🔍 DEBUG: setKey çağrıldı! Kanal: " << channel << " Şifre: " << key << "\n";
 
+    if (server.getChannelOperators()[channel].find(client_fd) == server.getChannelOperators()[channel].end()) {
+        std::string error_msg = ":ft_irc 482 " + channel + " :You're not channel operator\r\n";
+        send(client_fd, error_msg.c_str(), error_msg.size(), 0);
+        return;
+    }
+
     if (!key.empty())
         server.getChannelKeys()[channel] = key;
     else

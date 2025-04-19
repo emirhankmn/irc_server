@@ -78,6 +78,11 @@ void kickCommand(Server& server, int client_fd, std::istringstream& iss) {
     }
 
     std::string senderNick = server.getNicknames()[client_fd];
+    if(targetFd == client_fd) {
+        std::string error_msg = ":ft_irc 441 " + targetNick + " " + channel + " :You cannot kick yourself\r\n";
+        send(client_fd, error_msg.c_str(), error_msg.size(), 0);
+        return;
+    }
     std::string kickMsg = ":" + senderNick + " KICK " + channel + " " + targetNick + " :Kicked\r\n";
     server.sendToChannel(channel, senderNick, "has kicked " + targetNick, client_fd);
     send(targetFd, kickMsg.c_str(), kickMsg.size(), 0);

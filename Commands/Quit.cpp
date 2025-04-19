@@ -16,11 +16,12 @@
 namespace Commands {
 
 void quitCommand(Server& server, int client_fd, std::istringstream& iss) {
-    std::string reason;
+    std::string target, reason;
+    iss >> target;
     std::getline(iss, reason);
 
     if (!server.isAuthorized(client_fd)) {
-        std::string msg = ":ft_irc 462 :You not register\r\n";
+        std::string msg = ":ft_irc 451 :You have not registered\r\n";
         send(client_fd, msg.c_str(), msg.size(), 0);
         return;
     }
@@ -34,11 +35,14 @@ void quitCommand(Server& server, int client_fd, std::istringstream& iss) {
     for (std::map<std::string, std::set<int> >::iterator it = server.getChannels().begin(); it != server.getChannels().end(); ) {
         std::string channel = it->first;
         std::set<int>& members = it->second;
-
+        
         if (members.find(client_fd) != members.end()) {
             members.erase(client_fd);
+            std::string quitMsg = ":" + server.getNicknames()[client_fd] + " QUIT :" + reason + "\r\n";
+            server.sendToChannel(target, server.getNicknames()[client_fd], quitMsg, client_fd);
             std::string partMsg = ":" + server.getNicknames()[client_fd] + " PART " + channel + " :" + reason + "\r\n";
             send(client_fd, partMsg.c_str(), partMsg.size(), 0);
+            //members.erase(client_fd);
         }
 
         if (members.empty()) {
@@ -47,10 +51,9 @@ void quitCommand(Server& server, int client_fd, std::istringstream& iss) {
             ++it;
         }
     }
-
     close(client_fd);
     server.removeClient(client_fd);
-    std::cout << "❌ Kullanıcı sunucudan çıktı: FD " << client_fd << std::endl;
+    std::cout << "❌ Client disconnected from server. FD: " << client_fd << std::endl;
 }
 
 }

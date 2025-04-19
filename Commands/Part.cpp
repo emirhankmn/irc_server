@@ -48,6 +48,8 @@ void partCommand(Server& server, int client_fd, std::istringstream& iss) {
         }
     }
 
+    std::string channelleaveMsg = "See you later, " + server.getNicknames()[client_fd] + "! Bye bye!\r\n";
+    server.sendToChannel(channel, server.getNicknames()[client_fd], channelleaveMsg, client_fd);
     server.getChannels()[channel].erase(client_fd);
     std::string partMsg = ":" + server.getNicknames()[client_fd] + " PART " + channel + "\r\n";
     send(client_fd, partMsg.c_str(), partMsg.size(), 0);

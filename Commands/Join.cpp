@@ -27,8 +27,14 @@ void joinCommand(Server& server, int client_fd, std::istringstream& iss) {
         return;
     }
 
+    if (!server.getNicknames().count(client_fd)) {
+        std::string msg = ":ft_irc 431 : No nickname given\r\n";
+        send(client_fd, msg.c_str(), msg.size(), 0);
+        return;
+    }
+
     if (channel.empty() || channel[0] != '#') {
-        std::string error_msg = ":ft_irc 400 JOIN :Invalid channel name. Usage: JOIN #channel [key]\r\n";
+        std::string error_msg = ":ft_irc 400 JOIN : Invalid channel name. Usage: JOIN #channel [key]\r\n";
         send(client_fd, error_msg.c_str(), error_msg.size(), 0);
         return;
     }
@@ -44,7 +50,7 @@ void joinCommand(Server& server, int client_fd, std::istringstream& iss) {
     } else {
         if (server.getInviteOnlyChannels().count(channel) &&
             server.getInvitedUsers()[channel].count(client_fd) == 0) {
-            std::string error_msg = ":ft_irc 473 " + channel + " :You must be invited to join this channel\r\n";
+            std::string error_msg = ":ft_irc 473 " + channel + " : You must be invited to join this channel\r\n";
             send(client_fd, error_msg.c_str(), error_msg.size(), 0);
             return;
         }
@@ -71,6 +77,11 @@ void joinCommand(Server& server, int client_fd, std::istringstream& iss) {
     }
 
     std::string joinMsg = ":" + server.getNicknames()[client_fd] + " JOIN " + channel + "\r\n";
+    if (server.getNicknames()[client_fd] != ""){
+        std::string userMsg = "Hi there I'm " + server.getNicknames()[client_fd] + "\r\n";
+        server.sendToChannel(channel, server.getNicknames()[client_fd], userMsg, client_fd);
+    }
+    std::cout << "📨 User joins: " << channel << " channel\n";
     send(client_fd, joinMsg.c_str(), joinMsg.size(), 0);
 
     if (!server.getChannelTopics()[channel].empty()) {
