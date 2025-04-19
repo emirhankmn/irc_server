@@ -12,7 +12,7 @@
 
 #include "Mode.hpp"
 #include "../Commands.hpp"
-#include "../Modes.hpp"
+#include "../Modes/Modes.hpp"
 
 namespace Commands {
 

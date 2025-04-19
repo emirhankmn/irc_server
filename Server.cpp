@@ -144,7 +144,8 @@ void Server::removeClient(int client_fd) {
 }
 
 // Kanal içindeki tüm istemcilere mesaj gönderen fonksiyon
-void Server::sendToChannel(const std::string& channel, const std::string& sender, const std::string& message, int sender_fd) {
+void Server::sendToChannel(const std::string& channel, const std::string& sender, const std::string& message, int sender_fd, bool isCommand) {
+    
     std::string full_message = ":" + sender + " PRIVMSG " + channel + " :" + message + "\r\n";
 
     if (channels.find(channel) == channels.end()) {
@@ -152,10 +153,15 @@ void Server::sendToChannel(const std::string& channel, const std::string& sender
         return;
     }
 
+
     for (std::set<int>::iterator it = channels[channel].begin(); it != channels[channel].end(); ++it) {
         if (*it != sender_fd) { // Mesajı gönderen istemciye tekrar göndermiyoruz
             send(*it, full_message.c_str(), full_message.size(), 0);
             std::cout << "📨 Mesaj gönderildi: " << full_message << std::endl;
+        }
+        else if (isCommand && sender_fd == *it) {
+            std::cout << "📨 Komut gönderildi: " << full_message << std::endl;
+            send(*it, full_message.c_str(), full_message.size(), 0);
         }
         else {
             std::cout << "📨 Mesaj gönderilmedi: " << full_message << std::endl;

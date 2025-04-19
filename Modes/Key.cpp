@@ -16,7 +16,7 @@
 
 namespace Modes {
 
-void setKey(Server& server, int client_fd, const std::string& channel, const std::string& key) {
+void setKey(Server& server, int client_fd, const std::string& channel, bool key) {
     std::cout << "🔍 DEBUG: setKey çağrıldı! Kanal: " << channel << " Şifre: " << key << "\n";
 
     if (server.getChannelOperators()[channel].find(client_fd) == server.getChannelOperators()[channel].end()) {
@@ -25,16 +25,18 @@ void setKey(Server& server, int client_fd, const std::string& channel, const std
         return;
     }
 
-    if (!key.empty())
-        server.getChannelKeys()[channel] = key;
+    if (key == false)
+        server.getChannelKeys()[channel] = "";
     else
         server.getChannelKeys().erase(channel);
 
-    std::string response = (!key.empty())
-        ? ":ft_irc MODE " + channel + " +k " + key + "\r\n"
-        : ":ft_irc MODE " + channel + " -k\r\n";
+    //std::string response = (!key.empty())
+        //? ":ft_irc MODE " + channel + " +k " + key + "\r\n"
+        //: ":ft_irc MODE " + channel + " -k\r\n";
 
-    server.sendToChannel(channel, "server", response, client_fd);
+    //server.sendToChannel(channel, "server", response, client_fd, true);
+    std::string response = ":ft_irc MODE " + channel + (key ? " +k" : " -k") + "\r\n";
+    send(client_fd, response.c_str(), response.size(), 0);
 }
 
 }

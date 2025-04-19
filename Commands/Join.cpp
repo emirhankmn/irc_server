@@ -79,7 +79,7 @@ void joinCommand(Server& server, int client_fd, std::istringstream& iss) {
     std::string joinMsg = ":" + server.getNicknames()[client_fd] + " JOIN " + channel + "\r\n";
     if (server.getNicknames()[client_fd] != ""){
         std::string userMsg = "Hi there I'm " + server.getNicknames()[client_fd] + "\r\n";
-        server.sendToChannel(channel, server.getNicknames()[client_fd], userMsg, client_fd);
+        server.sendToChannel(channel, server.getNicknames()[client_fd], userMsg, client_fd, true);
     }
     std::cout << "📨 User joins: " << channel << " channel\n";
     send(client_fd, joinMsg.c_str(), joinMsg.size(), 0);

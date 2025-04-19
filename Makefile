@@ -6,7 +6,7 @@ SRC_DIR     = .
 CMD_DIR     = Commands
 MODES_DIR   = Modes
 
-SRC_FILES   = main.cpp Server.cpp Commands.cpp Modes.cpp
+SRC_FILES   = main.cpp Server.cpp Commands.cpp
 
 CMD_FILES   = \
 	$(CMD_DIR)/Pass.cpp \
@@ -22,6 +22,7 @@ CMD_FILES   = \
 	$(CMD_DIR)/Mode.cpp
 
 MODES_FILES = \
+	$(MODES_DIR)/Modes.cpp \
 	$(MODES_DIR)/Invite.cpp \
 	$(MODES_DIR)/Key.cpp \
 	$(MODES_DIR)/Limit.cpp \

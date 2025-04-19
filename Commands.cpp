@@ -11,7 +11,7 @@
 /* ************************************************************************** */
 
 #include "Commands.hpp"
-#include "Modes.hpp"
+#include "Modes/Modes.hpp"
 #include <signal.h>
 #include <iostream>
 #include <sstream>

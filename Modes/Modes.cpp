@@ -1,14 +1,12 @@
-#include "Commands.hpp"
+#include "../Commands.hpp"
 #include "Modes.hpp"
-#include "Server.hpp"
+#include "../Server.hpp"
 #include <iostream>
 #include <cstdlib>
 #include <sstream>
 
-namespace {
-
 void Modes::processMode(Server& server, int client_fd, const std::string& channel,
-                        const std::string& modes, std::vector<std::string>& params) 
+                        const std::string& modes, std::vector<std::string>& params) {
     std::ostringstream joined;
     for (size_t i = 0; i < params.size(); ++i) {
         if (i != 0) joined << " ";
@@ -30,6 +28,12 @@ void Modes::processMode(Server& server, int client_fd, const std::string& channe
         return;
     }
 
+    if (modes.empty() || (modes[0] != '+' && modes[0] != '-')) {
+        std::string error_msg = ":ft_irc 472 " + channel + " " + modes + " :Unknown mode\r\n";
+        server.sendToChannel(channel, "server", error_msg, client_fd, true);
+        return;
+    }
+
     std::string& currentModes = server.getChannelModes()[channel];
     bool enable = true;
     size_t paramIndex = 0;
@@ -40,14 +44,25 @@ void Modes::processMode(Server& server, int client_fd, const std::string& channe
 
         if (mode == '+') {
             enable = true;
+            std::cout << "🔍 DEBUG: Enable mode: " << mode << "\n";
             continue;
-        } else if (mode == '-') {
+        } 
+        else if (mode == '-') {
             enable = false;
+            std::cout << "🔍 DEBUG: Disable mode: " << mode << "\n";
             continue;
         }
 
         std::string paramToken = "";
-        if (c == 'k' || c == 'l' || c == 'o') {
+        if ((mode == 'k' || mode == 'l') && enable) {
+            if (paramIndex >= params.size()) {
+                std::string error_msg = ":ft_irc 461 MODE " + channel + " " + mode + " :Parameter required\r\n";
+                send(client_fd, error_msg.c_str(), error_msg.size(), 0);
+                continue;
+            }
+            paramToken = params[paramIndex++];
+        }
+        else if (mode == 'o') {
             if (paramIndex >= params.size()) {
                 std::string error_msg = ":ft_irc 461 MODE " + channel + " " + mode + " :Parameter required\r\n";
                 send(client_fd, error_msg.c_str(), error_msg.size(), 0);
@@ -61,7 +76,7 @@ void Modes::processMode(Server& server, int client_fd, const std::string& channe
                 setInviteOnly(server, client_fd, channel, enable);
                 break;
             case 'k':
-                setKey(server, client_fd, channel, enable ? paramToken : "");
+                setKey(server, client_fd, channel, enable);
                 break;
             case 'l':
                 {

@@ -17,7 +17,7 @@
 # include <string>
 
 namespace Modes {
-    void setKey(Server& server, int client_fd, const std::string& channel, const std::string& key);
+    void setKey(Server& server, int client_fd, const std::string& channel, bool key);
 }
 
 #endif

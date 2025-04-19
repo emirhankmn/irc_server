@@ -64,7 +64,7 @@ public:
 
     // 🔄 İstemci ve Kanal Etkileşimi
     void sendToChannel(const std::string& channel, const std::string& sender,
-                       const std::string& message, int sender_fd);
+                       const std::string& message, int sender_fd, bool isCommand = false);
     void partChannel(int client_fd, const std::string& channel);
     void quitClient(int client_fd, const std::string& reason);
 

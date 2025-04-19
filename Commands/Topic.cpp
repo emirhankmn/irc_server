@@ -43,13 +43,11 @@ namespace Commands {
             return;
         }
     
-        // Kalan kısmı topic olarak al
         std::string topic;
         std::getline(iss, topic);
         size_t start = topic.find_first_not_of(" \t\r\n");
         topic = (start != std::string::npos) ? topic.substr(start) : "";
     
-        // Eğer boşsa, sadece topic'i göster
         if (topic.empty() || topic[0] != ':') {
             std::string currentTopic = server.getChannelTopics()[channel];
             std::string response;
@@ -62,7 +60,6 @@ namespace Commands {
             return;
         }
     
-        // ✅ +t aktifse ama operator değilse: izin verme
         if (server.getChannelModes()[channel].find('t') != std::string::npos &&
             server.getChannelOperators()[channel].find(client_fd) == server.getChannelOperators()[channel].end()) {
             std::string error_msg = ":ft_irc 482 " + channel + " :You're not channel operator\r\n";
@@ -70,14 +67,12 @@ namespace Commands {
             return;
         }
     
-        // ✅ topic belirlenmişse → güncelle
-        topic = topic.substr(1); // başındaki ':' işaretini at
+        topic = topic.substr(1);
         server.getChannelTopics()[channel] = topic;
     
         std::string nick = server.getNicknames()[client_fd];
         std::string topicMsg = ":" + nick + " TOPIC " + channel + " :" + topic + "\r\n";
     
-        // Herkese gönder
         const std::set<int>& users = server.getChannels()[channel];
         for (std::set<int>::const_iterator it = users.begin(); it != users.end(); ++it) {
             send(*it, topicMsg.c_str(), topicMsg.size(), 0);

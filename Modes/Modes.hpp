@@ -13,15 +13,15 @@
 #ifndef MODES_HPP
 #define MODES_HPP
 
-#include "Server.hpp"
+#include "../Server.hpp"
 #include <string>
 #include <sstream>
 
-#include "Modes/Invite.hpp"
-#include "Modes/Key.hpp"
-#include "Modes/Limit.hpp"
-#include "Modes/Topic.hpp"
-#include "Modes/Op.hpp"
+#include "Invite.hpp"
+#include "Key.hpp"
+#include "Limit.hpp"
+#include "Topic.hpp"
+#include "Op.hpp"
 
 namespace Modes {
     void processMode(Server& server, int client_fd, const std::string& channel, const std::string& modes, std::vector<std::string>& params);
