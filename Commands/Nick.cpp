@@ -25,12 +25,6 @@ void nickCommand(Server& server, int client_fd, std::istringstream& iss) {
         return;
     }
 
-    if (!server.isAuthorized(client_fd)) {
-        std::string msg = ":ft_irc 451 :You have not registered\r\n";
-        send(client_fd, msg.c_str(), msg.size(), 0);
-        return;
-    }
-
     if (nickname.empty()) {
         std::string error_msg = ":ft_irc 431 * :No nickname given\r\n";
         send(client_fd, error_msg.c_str(), error_msg.size(), 0);
