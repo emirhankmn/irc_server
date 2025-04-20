@@ -25,7 +25,6 @@ static std::string toUpper(const std::string& str) {
     return result;
 }
 
-
 void Commands::processMessage(Server& server, int client_fd, const std::string& message) {
     std::istringstream iss(message);
     std::string command;
