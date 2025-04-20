@@ -11,7 +11,7 @@
 /* ************************************************************************** */
 
 #include "Kick.hpp"
-#include "../Commands.hpp"  // processMessage içindeki çağrı için
+#include "../Commands.hpp"  
 
 namespace Commands {
 

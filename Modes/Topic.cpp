@@ -17,13 +17,12 @@
 namespace Modes {
 
 void setTopicLock(Server& server, int client_fd, const std::string& channel, bool enable) {
-    std::cout << "🔍 DEBUG: setTopicLock çağrıldı! Kanal: " << channel
-              << " Enable: " << (enable ? "+t" : "-t") << std::endl;
 
-    server.updateChannelMode(channel, 't', enable);
+    server.getChannelModes()[channel] += 't'; 
 
     std::string response = ":ft_irc MODE " + channel + (enable ? " +t" : " -t") + "\r\n";
     server.sendToChannel(channel, "server", response, client_fd);
+    send(client_fd, response.c_str(), response.size(), 0);
 }
 
 }

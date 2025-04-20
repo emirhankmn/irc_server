@@ -26,48 +26,40 @@ bool Server::isAuthorized(int fd) const { return authorizedClients.find(fd) != a
 void Server::authorizeClient(int fd) { authorizedClients.insert(fd); }
 const std::string& Server::getPassword() const { return password; }
 
-// Sunucuyu başlatan fonksiyon
 void Server::init() {
-    std::cout << "✅ Sunucu başlatılıyor..." << std::endl;
+    std::cout << "✅ Initializing the server..." << std::endl;
 
-    // 1️⃣ TCP soketi oluştur
     server_socket = socket(AF_INET, SOCK_STREAM, 0);
     if (server_socket == -1) {
-        std::cerr << "❌ Hata: Soket oluşturulamadı!" << std::endl;
+        std::cerr << "❌ Error: Failed to create socket!" << std::endl;
         exit(EXIT_FAILURE);
     }
 
-    // 2️⃣ Soketin yeniden kullanılmasını sağla (SO_REUSEADDR)
     int opt = 1;
     if (setsockopt(server_socket, SOL_SOCKET, SO_REUSEADDR, &opt, sizeof(opt)) == -1) {
-        std::cerr << "❌ Hata: Soket ayarları yapılamadı!" << std::endl;
+        std::cerr << "❌ Error: Failed to set socket settings!" << std::endl;
         exit(EXIT_FAILURE);
     }
 
-    // 3️⃣ Sunucu adres bilgilerini ayarla
     memset(&server_addr, 0, sizeof(server_addr));
     server_addr.sin_family = AF_INET;
-    server_addr.sin_addr.s_addr = INADDR_ANY; // Herhangi bir IP adresinden bağlanılabilir
-    server_addr.sin_port = htons(port);       // Port numarasını belirle
+    server_addr.sin_addr.s_addr = INADDR_ANY; 
+    server_addr.sin_port = htons(port);       
 
-    // 4️⃣ Soketi porta bağla
     if (bind(server_socket, (struct sockaddr *)&server_addr, sizeof(server_addr)) == -1) {
-        std::cerr << "❌ Hata: Bağlama (bind) başarısız!" << std::endl;
+        std::cerr << "❌ Error: Binding (bind) failed!" << std::endl;
         exit(EXIT_FAILURE);
     }
 
-    // 5️⃣ Bağlantıları dinlemeye başla
-    if (listen(server_socket, 10) == -1) { // 10, maksimum bağlantı kuyruğu uzunluğu
-        std::cerr << "❌ Hata: Dinleme (listen) başarısız!" << std::endl;
+    if (listen(server_socket, 10) == -1) {
+        std::cerr << "❌ Error: Listen failed!" << std::endl;
         exit(EXIT_FAILURE);
     }
 
-    std::cout << "✅ Sunucu başlatıldı! Port: " << port << std::endl;
+    std::cout << "✅ Server initialized! Port: " << port << std::endl;
 }
 
-// Sunucunun ana döngüsü
 void Server::run() {
-    std::cout << "🚀 Sunucu çalışıyor... Bağlantılar bekleniyor..." << std::endl;
 
     struct pollfd server_pollfd;
     server_pollfd.fd = server_socket;
@@ -76,7 +68,7 @@ void Server::run() {
 
     while (true) {
         if (poll(clients.data(), clients.size(), -1) == -1) {
-            std::cerr << "❌ Hata: poll() başarısız!" << std::endl;
+            std::cerr << "❌ Error: poll() failed!" << std::endl;
             exit(EXIT_FAILURE);
         }
 
@@ -92,16 +84,15 @@ void Server::run() {
     }
 }
 
-// Yeni istemci bağlantısını kabul et
 void Server::acceptClient() {
     struct sockaddr_in client_addr;
     socklen_t client_len = sizeof(client_addr);
     int client_socket = accept(server_socket, (struct sockaddr*)&client_addr, &client_len);
     
     if (client_socket == -1) {
-        std::cerr << "❌ Hata: İstemci bağlantısı kabul edilemedi!" << std::endl;
+        std::cerr << "❌ Error: Failed to accept client connection!" << std::endl;
     } else {
-        std::cout << "✅ Yeni istemci bağlandı! (Socket FD: " << client_socket << ")" << std::endl;
+        std::cout << "✅ New client connected! (Socket FD: " << client_socket << ")" << std::endl;
         
         struct pollfd new_client;
         new_client.fd = client_socket;
@@ -113,7 +104,6 @@ void Server::acceptClient() {
     }
 }
 
-// İstemciden gelen mesajı al ve işle
 void Server::receiveMessage(int client_fd) {
     char buffer[512];
     memset(buffer, 0, sizeof(buffer));
@@ -123,14 +113,13 @@ void Server::receiveMessage(int client_fd) {
         removeClient(client_fd);
     } else {
         std::string message(buffer);
-        std::cout << "📩 İstemciden mesaj alındı: " << message << std::endl;
+        std::cout << "📩 Message received from client: " << message << std::endl;
         Commands::processMessage(*this, client_fd, message);
     }
 }
 
-// İstemci bağlantısını kapat ve temizle
 void Server::removeClient(int client_fd) {
-    std::cout << "❌ İstemci bağlantıyı kapattı! (Socket FD: " << client_fd << ")" << std::endl;
+    std::cout << "❌ The client has closed the connection! (Socket FD: " << client_fd << ")" << std::endl;
     close(client_fd);
 
     for (size_t i = 0; i < clients.size(); i++) {
@@ -143,41 +132,27 @@ void Server::removeClient(int client_fd) {
     nicknames.erase(client_fd);
 }
 
-// Kanal içindeki tüm istemcilere mesaj gönderen fonksiyon
 void Server::sendToChannel(const std::string& channel, const std::string& sender, const std::string& message, int sender_fd, bool isCommand) {
     
     std::string full_message = ":" + sender + " PRIVMSG " + channel + " :" + message + "\r\n";
 
     if (channels.find(channel) == channels.end()) {
-        std::cerr << "❌ Hata: Kanal bulunamadı!" << std::endl;
+        std::cerr << "❌ Error: Channel not found!" << std::endl;
         return;
     }
 
 
     for (std::set<int>::iterator it = channels[channel].begin(); it != channels[channel].end(); ++it) {
-        if (*it != sender_fd) { // Mesajı gönderen istemciye tekrar göndermiyoruz
+        if (*it != sender_fd) {
             send(*it, full_message.c_str(), full_message.size(), 0);
-            std::cout << "📨 Mesaj gönderildi: " << full_message << std::endl;
+            std::cout << "📨 Message sent: " << full_message << std::endl;
         }
         else if (isCommand && sender_fd == *it) {
-            std::cout << "📨 Komut gönderildi: " << full_message << std::endl;
+            std::cout << "📨 Command sent: " << full_message << std::endl;
             send(*it, full_message.c_str(), full_message.size(), 0);
         }
         else {
-            std::cout << "📨 Mesaj gönderilmedi: " << full_message << std::endl;
-        }
-    }
-}
-
-void Server::updateChannelMode(const std::string& channel, char mode, bool enable) {
-    if (enable) {
-        if (channelModes[channel].find(mode) == std::string::npos) {
-            channelModes[channel] += mode; // Yeni modu ekle
-        }
-    } else {
-        size_t pos = channelModes[channel].find(mode);
-        if (pos != std::string::npos) {
-            channelModes[channel].erase(pos, 1); // Modu kaldır
+            std::cout << "📨 No message was sent: " << full_message << std::endl;
         }
     }
 }

@@ -17,14 +17,7 @@
 namespace Modes {
 
 void setOperator(Server& server, int client_fd, const std::string& channel, const std::string& targetNick, bool enable) {
-    std::cout << "🔍 DEBUG: setOperator çağrıldı! Kanal: " << channel << ", Kullanıcı: " << targetNick
-              << ", Enable: " << (enable ? "true" : "false") << std::endl;
 
-    if (server.getChannels().find(channel) == server.getChannels().end()) {
-        std::string error_msg = ":ft_irc 403 " + channel + " :No such channel\r\n";
-        send(client_fd, error_msg.c_str(), error_msg.size(), 0);
-        return;
-    }
 
     if (server.getChannels()[channel].find(client_fd) == server.getChannels()[channel].end()) {
         std::string error_msg = ":ft_irc 442 " + channel + " :You're not on that channel\r\n";
@@ -55,7 +48,9 @@ void setOperator(Server& server, int client_fd, const std::string& channel, cons
         server.getChannelOperators()[channel].insert(targetFd);
         std::string msg = ":ft_irc MODE " + channel + " +o " + targetNick + "\r\n";
         server.sendToChannel(channel, "server", msg, client_fd);
-    } else {
+        send(targetFd, msg.c_str(), msg.size(), 0);
+    } 
+    else {
         if (!server.getChannelOperators()[channel].count(targetFd)) {
             std::string error_msg = ":ft_irc 482 " + channel + " :User is not an operator\r\n";
             send(client_fd, error_msg.c_str(), error_msg.size(), 0);
@@ -65,6 +60,7 @@ void setOperator(Server& server, int client_fd, const std::string& channel, cons
         server.getChannelOperators()[channel].erase(targetFd);
         std::string msg = ":ft_irc MODE " + channel + " -o " + targetNick + "\r\n";
         server.sendToChannel(channel, "server", msg, client_fd);
+        send(targetFd, msg.c_str(), msg.size(), 0);
     }
 }
 

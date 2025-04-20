@@ -41,10 +41,10 @@ void partCommand(Server& server, int client_fd, std::istringstream& iss) {
         if (!server.getChannelOperators()[channel].empty()) {
             int new_founder = *server.getChannelOperators()[channel].begin();
             server.getChannelFounders()[channel] = new_founder;
-            std::cout << "👑 Founder değişti: " << new_founder << " artık founder!" << std::endl;
+            std::cout << "👑 Founder has changed: " << new_founder << " now founder!" << std::endl;
         } else {
             server.getChannelFounders().erase(channel);
-            std::cout << "❌ Founder kaldırıldı, kanal sahipsiz kaldı." << std::endl;
+            std::cout << "❌ Founder abolished, channel left unattended." << std::endl;
         }
     }
 
@@ -60,7 +60,7 @@ void partCommand(Server& server, int client_fd, std::istringstream& iss) {
         server.getChannelOperators().erase(channel);
     }
 
-    std::cout << "👋 Kullanıcı kanaldan ayrıldı: " << channel << std::endl;
+    std::cout << "👋 The user has left the channel: " << channel << std::endl;
 }
 
 }

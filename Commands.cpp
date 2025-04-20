@@ -17,7 +17,7 @@
 #include <sstream>
 #include <cctype>
 
-// Yardımcı: Komutları büyük harfe çeviren fonksiyon
+
 static std::string toUpper(const std::string& str) {
     std::string result = str;
     for (size_t i = 0; i < result.length(); ++i)
@@ -25,14 +25,13 @@ static std::string toUpper(const std::string& str) {
     return result;
 }
 
-// Gelen mesajı işleyerek ilgili komut fonksiyonuna yönlendirir
+
 void Commands::processMessage(Server& server, int client_fd, const std::string& message) {
     std::istringstream iss(message);
     std::string command;
     iss >> command;
     command = toUpper(command);
 
-    std::cout << "🔍 DEBUG: processMessage çağrıldı! Komut: " << command << std::endl;
     if (command == "PASS") {
         passCommand(server, client_fd, iss);
         return;

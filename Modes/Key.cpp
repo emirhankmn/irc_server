@@ -16,8 +16,7 @@
 
 namespace Modes {
 
-void setKey(Server& server, int client_fd, const std::string& channel, bool key) {
-    std::cout << "🔍 DEBUG: setKey çağrıldı! Kanal: " << channel << " Şifre: " << key << "\n";
+void setKey(Server& server, int client_fd, const std::string& channel, const std::string& key) {
 
     if (server.getChannelOperators()[channel].find(client_fd) == server.getChannelOperators()[channel].end()) {
         std::string error_msg = ":ft_irc 482 " + channel + " :You're not channel operator\r\n";
@@ -25,17 +24,38 @@ void setKey(Server& server, int client_fd, const std::string& channel, bool key)
         return;
     }
 
-    if (key == false)
-        server.getChannelKeys()[channel] = "";
-    else
+    if(key.size() > 50) {
+        std::string error_msg = ":ft_irc 461 MODE " + channel + " +k :Key too long\r\n";
+        send(client_fd, error_msg.c_str(), error_msg.size(), 0);
+        return;
+    }
+    if(key.find(' ') != std::string::npos) {
+        std::string error_msg = ":ft_irc 461 MODE " + channel + " +k :Key cannot contain spaces\r\n";
+        send(client_fd, error_msg.c_str(), error_msg.size(), 0);
+        return;
+    }
+    if(key == server.getChannelKeys()[channel]) {
+        std::string error_msg = ":ft_irc 461 MODE " + channel + " +k :Key already set\r\n";
+        send(client_fd, error_msg.c_str(), error_msg.size(), 0);
+        return;
+    }
+    if(key.empty()) {
         server.getChannelKeys().erase(channel);
+        server.getChannelModes()[channel].erase(server.getChannelModes()[channel].find('k'));
+        std::string response = ":ft_irc MODE " + channel + " -k\r\n";
+        send(client_fd, response.c_str(), response.size(), 0);
+        return;
+    }
 
-    //std::string response = (!key.empty())
-        //? ":ft_irc MODE " + channel + " +k " + key + "\r\n"
-        //: ":ft_irc MODE " + channel + " -k\r\n";
+    server.getChannelKeys()[channel] = key;
+    server.getChannelModes()[channel] += 'k';
 
-    //server.sendToChannel(channel, "server", response, client_fd, true);
-    std::string response = ":ft_irc MODE " + channel + (key ? " +k" : " -k") + "\r\n";
+    std::string response = (!key.empty())
+        ? ":ft_irc MODE " + channel + " +k " + key + "\r\n"
+        : ":ft_irc MODE " + channel + " -k\r\n";
+
+    server.sendToChannel(channel, "server", response, client_fd, true);
+
     send(client_fd, response.c_str(), response.size(), 0);
 }
 

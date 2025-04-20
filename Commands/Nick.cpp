@@ -42,7 +42,6 @@ void nickCommand(Server& server, int client_fd, std::istringstream& iss) {
     server.getNicknames()[client_fd] = nickname;
     std::string response = ":ft_irc 001 " + nickname + " :Nickname set successfully\r\n";
     send(client_fd, response.c_str(), response.size(), 0);
-    std::cout << "✅ Kullanıcı takma adı ayarlandı: " << nickname << std::endl;
 }
 
 }

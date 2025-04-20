@@ -54,7 +54,7 @@ void privmsgCommand(Server& server, int client_fd, std::istringstream& iss) {
             return;
         }
         
-        std::cout << "🔍 DEBUG: privmsgCommand çağrıldı! Hedef: " << target << ", Mesaj: " << msg << std::endl ;
+        std::cout << "🔍 DEBUG: privmsgCommand has been invoked! Target " << target << ", Message: " << msg << std::endl ;
         server.sendToChannel(target, server.getNicknames()[client_fd], msg, client_fd);
     } else {
         int targetFd = server.getUserFdByNick(target);

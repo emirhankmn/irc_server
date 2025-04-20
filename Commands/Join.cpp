@@ -46,7 +46,7 @@ void joinCommand(Server& server, int client_fd, std::istringstream& iss) {
         server.getChannels()[channel].insert(client_fd);
         server.getChannelModes()[channel] = "";
         server.getChannelFounders()[channel] = client_fd;
-        std::cout << "🆕 Yeni kanal oluşturuldu: " << channel << "\n";
+        std::cout << "🆕 New Channel created: " << channel << "\n";
     } else {
         if (server.getInviteOnlyChannels().count(channel) &&
             server.getInvitedUsers()[channel].count(client_fd) == 0) {

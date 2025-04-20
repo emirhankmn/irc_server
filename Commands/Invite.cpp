@@ -68,15 +68,15 @@ void inviteCommand(Server& server, int client_fd, std::istringstream& iss) {
         return;
     }
 
-    // ✅ Davet listesine ekle
+    
     server.getInvitedUsers()[channel].insert(targetFd);
 
-    // ✅ Hedef kullanıcıya INVITE mesajı gönder
+    
     std::string senderNick = server.getNicknames()[client_fd];
     std::string inviteMsg = ":" + senderNick + " INVITE " + targetNick + " " + channel + "\r\n";
     send(targetFd, inviteMsg.c_str(), inviteMsg.size(), 0);
 
-    // ✅ Gönderene de onay mesajı
+    
     std::string confirm = ":ft_irc 341 " + targetNick + " " + channel + "\r\n";
     send(client_fd, confirm.c_str(), confirm.size(), 0);
     }

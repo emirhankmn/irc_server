@@ -1,3 +1,15 @@
+/* ************************************************************************** */
+/*                                                                            */
+/*                                                        :::      ::::::::   */
+/*   Limit.cpp                                          :+:      :+:    :+:   */
+/*                                                    +:+ +:+         +:+     */
+/*   By: eakman <arcemirhanakman@gmail.com>         +#+  +:+       +#+        */
+/*                                                +#+#+#+#+#+   +#+           */
+/*   Created: 2025/04/15 04:25:44 by eakman            #+#    #+#             */
+/*   Updated: 2025/04/15 04:25:44 by eakman           ###   ########.fr       */
+/*                                                                            */
+/* ************************************************************************** */
+
 #include "../Commands.hpp"
 #include "Modes.hpp"
 #include "../Server.hpp"
@@ -44,12 +56,10 @@ void Modes::processMode(Server& server, int client_fd, const std::string& channe
 
         if (mode == '+') {
             enable = true;
-            std::cout << "🔍 DEBUG: Enable mode: " << mode << "\n";
             continue;
         } 
         else if (mode == '-') {
             enable = false;
-            std::cout << "🔍 DEBUG: Disable mode: " << mode << "\n";
             continue;
         }
 
@@ -76,7 +86,7 @@ void Modes::processMode(Server& server, int client_fd, const std::string& channe
                 setInviteOnly(server, client_fd, channel, enable);
                 break;
             case 'k':
-                setKey(server, client_fd, channel, enable);
+                setKey(server, client_fd, channel, enable ? paramToken : "");
                 break;
             case 'l':
                 {
@@ -86,7 +96,7 @@ void Modes::processMode(Server& server, int client_fd, const std::string& channe
                         send(client_fd, error_msg.c_str(), error_msg.size(), 0);
                         continue;
                     }
-                    setLimit(server, client_fd, channel, static_cast<int>(limit));
+                    setLimit(server, client_fd, channel, enable ? static_cast<int>(limit) : 0);
                 }
                 break;
             case 'o':
@@ -113,14 +123,12 @@ void Modes::processMode(Server& server, int client_fd, const std::string& channe
         }
     }
 
-    std::cout << "🔍 DEBUG: Updated channel modes: [" << currentModes << "]\n";
     std::string updatedModes = currentModes.empty() ? "+No modes set" : "+" + currentModes;
     std::string notify = ":ft_irc 324 " + channel + " " + updatedModes + "\r\n";
     send(client_fd, notify.c_str(), notify.size(), 0);
 }
 
 void Modes::getChannelModes(Server& server, int client_fd, const std::string& channel) {
-    std::cout << "🔍 DEBUG: getChannelModes called for channel: " << channel << std::endl;
 
     if (server.getChannels().find(channel) == server.getChannels().end()) {
         std::string error_msg = ":ft_irc 403 " + channel + " :No such channel\r\n";
@@ -131,5 +139,4 @@ void Modes::getChannelModes(Server& server, int client_fd, const std::string& ch
     std::string modes = server.getChannelModes()[channel];
     std::string response = ":ft_irc 324 " + channel + " +" + modes + "\r\n";
     send(client_fd, response.c_str(), response.size(), 0);
-    std::cout << "🔍 DEBUG: Channel modes sent: " << response << std::endl;
 }

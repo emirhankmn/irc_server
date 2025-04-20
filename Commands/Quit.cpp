@@ -36,7 +36,7 @@ void quitCommand(Server& server, int client_fd, std::istringstream& iss) {
             server.sendToChannel(target, server.getNicknames()[client_fd], quitMsg, client_fd);
             std::string partMsg = ":" + server.getNicknames()[client_fd] + " PART " + channel + " :" + reason + "\r\n";
             send(client_fd, partMsg.c_str(), partMsg.size(), 0);
-            //members.erase(client_fd);
+            
         }
 
         if (members.empty()) {

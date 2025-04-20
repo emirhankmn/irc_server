@@ -25,7 +25,7 @@
 
 namespace Modes {
     void processMode(Server& server, int client_fd, const std::string& channel, const std::string& modes, std::vector<std::string>& params);
-    void getChannelModes(Server& server, int client_fd, const std::string& channel); // Kanal modlarını göstermek için
+    void getChannelModes(Server& server, int client_fd, const std::string& channel); 
 }
 
 #endif

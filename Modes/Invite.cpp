@@ -19,8 +19,6 @@
 namespace Modes {
 
 void setInviteOnly(Server& server, int client_fd, const std::string& channel, bool enable) {
-    std::cout << "🔍 DEBUG: setInviteOnly çağrıldı! Kanal: " << channel
-              << " Enable: " << (enable ? "+i" : "-i") << "\n";
 
     std::string& currentModes = server.getChannelModes()[channel];
 
@@ -34,12 +32,14 @@ void setInviteOnly(Server& server, int client_fd, const std::string& channel, bo
         if (currentModes.find('i') == std::string::npos)
             currentModes += 'i';
         server.getInviteOnlyChannels().insert(channel);
+        server.getChannelModes()[channel] += 'i';
     } else {
         size_t pos = currentModes.find('i');
         if (pos != std::string::npos)
             currentModes.erase(pos, 1);
         server.getInviteOnlyChannels().erase(channel);
     }
+
 
     std::string response = ":ft_irc MODE " + channel + (enable ? " +i" : " -i") + "\r\n";
     send(client_fd, response.c_str(), response.size(), 0);
