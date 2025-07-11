@@ -1,0 +1,6 @@
+int server_fd = socket(AF_INET, SOCK_STREAM, 0);
+bind(server_fd, (struct sockaddr*)&addr, sizeof(addr));
+listen(server_fd, SOMAXCONN);
+
+struct pollfd fds[1] = { {server_fd, POLLIN, 0} };
+poll(fds, 1, -1);
